@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiArrowLeft, FiActivity, FiTrendingUp, FiCheckCircle, FiUsers, FiAward } from 'react-icons/fi';
+import { FiArrowLeft, FiActivity, FiTrendingUp, FiCheckCircle, FiUsers, FiAward, FiBarChart2 } from 'react-icons/fi';
 import { fetchFeedbackAnalytics } from '../redux/slices/feedbackSlice';
 import { fetchInterviews } from '../redux/slices/interviewSlice';
 import {

@@ -161,22 +161,28 @@ The application will be running locally at: `http://localhost:5173`
 
 Here are the visual walkthroughs of the key pages in InternJetCo:
 
-### 🏠 Dashboard Workspace
-*A centralized dashboard displaying your target role metrics, current progress, scheduled peer rounds, and history card widgets.*
-![Dashboard](screenshots/media__1781683638897.png)
+### 🏠 Landing Page & Dashboard Workspace
+*A premium dark landing page with custom icons, leading to a centralized dashboard displaying target role metrics, progress gauges, and scheduled peer rounds.*
+![Landing Page](screenshots/landing.png)
+![Dashboard](screenshots/dashboard.png)
 
 ### 💻 Drag-Resizable Coding Sandbox
-*The resizable programming environment featuring the Monaco Editor, detailed problem constraints, and dynamic Recharts analytics reporting on code optimization.*
-![Coding Sandbox 1](screenshots/media__1781683906859.png)
-![Coding Sandbox 2](screenshots/media__1781686331437.png)
+*The resizable programming environment featuring the Monaco Editor, detailed problem constraints, and custom analytics reporting.*
+![Coding Sandbox](screenshots/ai_coding.png)
 
 ### 👥 Peer Video Mock Rooms
 *Low-latency live mock room displaying synchronized notepad document controls, dynamic timer sync, and WebSockets-driven peer chat.*
-![Peer Mock Call](screenshots/media__1781687653156.png)
-![Peer Mock Settings](screenshots/media__1781687659747.png)
+![Peer Mock Call](screenshots/peer_room_call.png)
+![Peer Mock Settings](screenshots/peer_room_settings.png)
 
 ### 📄 AI Resume Parsing Report
-*The resume analyser reporting parsing scores, formatting recommendations, and keyword matching.*
-![Resume Analyzer](screenshots/media__1781685512393.png)
+*The resume analyzer reporting parsing scores, formatting recommendations, and keyword matching.*
+![Resume Analyzer](screenshots/resume_analysis.png)
+
+### 📅 Interview Scheduling & Profile
+*Select peer partners, schedule interview sessions, and configure profile parameters.*
+![Schedule Interview](screenshots/schedule.png)
+![User Profile](screenshots/profile.png)
 
 ---
+
