@@ -1,0 +1,329 @@
+/* ============================================
+   Onboarding Page
+   ============================================ */
+
+.onboarding {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: var(--color-bg-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.onboarding__bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.onboarding__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+}
+
+.onboarding__orb--1 {
+  width: 500px;
+  height: 500px;
+  background: var(--color-accent);
+  top: -150px;
+  right: -100px;
+  animation: float 8s ease-in-out infinite;
+}
+
+.onboarding__orb--2 {
+  width: 400px;
+  height: 400px;
+  background: var(--color-info);
+  bottom: -150px;
+  left: -100px;
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+/* Card */
+.onboarding__card {
+  width: 100%;
+  max-width: 680px;
+  border-radius: 24px;
+  padding: 2.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header */
+.onboarding__header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.onboarding__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.onboarding__logo-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.onboarding__title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+}
+
+.onboarding__subtitle {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+/* Steps indicator */
+.onboarding__steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 2rem;
+}
+
+.onboarding__step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.onboarding__step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: var(--color-bg-card);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.onboarding__step.active .onboarding__step-dot {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: white;
+  box-shadow: 0 0 20px var(--color-accent-glow);
+}
+
+.onboarding__step.done .onboarding__step-dot {
+  border-color: var(--color-success);
+  background: var(--color-success);
+  color: white;
+}
+
+.onboarding__step-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  transition: color 0.3s;
+}
+
+.onboarding__step.active .onboarding__step-label,
+.onboarding__step.done .onboarding__step-label {
+  color: var(--color-text-primary);
+}
+
+.onboarding__step-line {
+  width: 60px;
+  height: 2px;
+  background: var(--color-border);
+  margin: 0 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Content Area */
+.onboarding__content {
+  min-height: 260px;
+  margin-bottom: 1.5rem;
+}
+
+.onboarding__section-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.onboarding__badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--color-accent-light);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.onboarding__section-sub {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-bottom: 1.25rem;
+}
+
+/* Skills grid */
+.onboarding__skills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.onboarding__skill-chip {
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  border: 1px solid var(--color-border-light);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-sans);
+}
+
+.onboarding__skill-chip:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text-primary);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.onboarding__skill-chip.selected {
+  border-color: var(--color-accent);
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--color-accent-light);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.2);
+}
+
+/* Experience grid */
+.onboarding__exp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.onboarding__exp-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  cursor: pointer;
+  border-radius: 16px;
+  font-family: var(--font-sans);
+  transition: all 0.3s ease;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-glass);
+}
+
+.onboarding__exp-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-3px);
+}
+
+.onboarding__exp-card.selected {
+  border-color: var(--color-accent);
+  background: rgba(99, 102, 241, 0.12);
+  box-shadow: 0 0 24px rgba(99, 102, 241, 0.25);
+  transform: translateY(-3px);
+}
+
+.onboarding__exp-emoji {
+  font-size: 2rem;
+}
+
+.onboarding__exp-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.onboarding__exp-desc {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* Roles grid */
+.onboarding__roles-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.onboarding__role-chip {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--color-border-light);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-sans);
+}
+
+.onboarding__role-chip:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text-primary);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.onboarding__role-chip.selected {
+  border-color: var(--color-accent);
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--color-accent-light);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.2);
+}
+
+/* Footer */
+.onboarding__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.onboarding__next {
+  min-width: 140px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .onboarding__card {
+    padding: 1.5rem;
+  }
+
+  .onboarding__exp-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .onboarding__steps {
+    gap: 0;
+  }
+
+  .onboarding__step-line {
+    width: 30px;
+  }
+}

@@ -1,0 +1,372 @@
+/* ============================================
+   Profile Page
+   ============================================ */
+
+.profile-page {
+  position: relative;
+}
+
+.profile-page__bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.profile-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.1;
+}
+
+.profile-orb--1 {
+  width: 600px;
+  height: 600px;
+  background: var(--color-accent);
+  top: -200px;
+  left: -150px;
+}
+
+.profile-orb--2 {
+  width: 400px;
+  height: 400px;
+  background: var(--color-info);
+  bottom: -100px;
+  right: -100px;
+}
+
+.profile-container {
+  max-width: 760px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Back button */
+.profile-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  transition: color 0.2s;
+  font-family: var(--font-sans);
+}
+
+.profile-back:hover {
+  color: var(--color-text-primary);
+}
+
+/* Profile Card */
+.profile-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Header */
+.profile-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(6, 182, 212, 0.05));
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+
+.profile-avatar {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-info));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+}
+
+.profile-avatar__glow {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-info));
+  z-index: -1;
+  opacity: 0.3;
+  filter: blur(8px);
+}
+
+.profile-header__info {
+  flex: 1;
+}
+
+.profile-name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.3rem;
+}
+
+.profile-email {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+}
+
+.profile-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.profile-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  text-transform: capitalize;
+}
+
+.profile-badge--role {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--color-accent-light);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.profile-badge--target {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.profile-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-light);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+  flex-shrink: 0;
+}
+
+.profile-edit-btn:hover,
+.profile-edit-btn.active {
+  border-color: var(--color-accent);
+  color: var(--color-accent-light);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+/* Body */
+.profile-body {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.profile-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-text-muted);
+}
+
+.profile-skill-count {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.75rem;
+  color: var(--color-accent-light);
+  background: rgba(99, 102, 241, 0.12);
+  padding: 0.1rem 0.5rem;
+  border-radius: 10px;
+  margin-left: 0.25rem;
+}
+
+.profile-value {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Inputs */
+.profile-input {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border-light);
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.profile-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.profile-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Experience row */
+.profile-exp-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.profile-exp-btn {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-light);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+
+.profile-exp-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text-primary);
+}
+
+.profile-exp-btn.selected {
+  border-color: var(--color-accent);
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--color-accent-light);
+}
+
+/* Roles grid */
+.profile-roles-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.profile-role-chip {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  border: 1px solid var(--color-border-light);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+
+.profile-role-chip:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text-primary);
+}
+
+.profile-role-chip.selected {
+  border-color: var(--color-accent);
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--color-accent-light);
+}
+
+/* Skills */
+.profile-skills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.profile-skill-chip {
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+
+.profile-skill-chip:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text-primary);
+}
+
+.profile-skill-chip.selected {
+  border-color: var(--color-accent);
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--color-accent-light);
+}
+
+.profile-skills-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.profile-skill-tag {
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: var(--color-accent-light);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Save button */
+.profile-save-btn {
+  align-self: flex-start;
+  min-width: 160px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .profile-header {
+    flex-wrap: wrap;
+  }
+
+  .profile-edit-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+  }
+
+  .profile-exp-row {
+    flex-direction: column;
+  }
+}

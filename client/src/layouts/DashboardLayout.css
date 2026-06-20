@@ -1,0 +1,293 @@
+/* ============================================
+   Dashboard Layout Styles
+   ============================================ */
+
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ─── Background Orbs ─── */
+.dashboard-layout__bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.layout-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  opacity: 0.08;
+}
+
+.layout-orb--1 {
+  top: -10%;
+  left: -10%;
+  width: 45vw;
+  height: 45vw;
+  background: radial-gradient(circle, var(--color-accent) 0%, transparent 80%);
+}
+
+.layout-orb--2 {
+  bottom: -10%;
+  right: -10%;
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(circle, var(--color-accent-light) 0%, transparent 80%);
+}
+
+/* ─── Sidebar ─── */
+.dashboard-layout__sidebar {
+  width: 270px;
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  padding: 1.75rem 1.25rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 10;
+  flex-shrink: 0;
+  background-color: rgba(13, 17, 28, 0.4);
+}
+
+.layout-sidebar__logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+  padding: 0 0.5rem;
+}
+
+.layout-sidebar__logo-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.layout-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.layout-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  border-radius: 12px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  text-align: left;
+  width: 100%;
+  position: relative;
+}
+
+.layout-sidebar__link:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-primary);
+  border-color: rgba(255, 255, 255, 0.05);
+  transform: translateX(2px);
+}
+
+.layout-sidebar__link--active {
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--color-accent-light);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  font-weight: 600;
+}
+
+.layout-sidebar__link--active:hover {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--color-accent-light);
+}
+
+.layout-sidebar__link-indicator {
+  position: absolute;
+  left: 0;
+  top: 25%;
+  height: 50%;
+  width: 3px;
+  background: linear-gradient(to bottom, var(--color-gradient-start), var(--color-gradient-end));
+  border-radius: 0 4px 4px 0;
+}
+
+/* ─── Sidebar Footer ─── */
+.layout-sidebar__footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.layout-sidebar__user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.layout-sidebar__user:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.layout-sidebar__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-gradient-start), var(--color-gradient-end));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+}
+
+.layout-sidebar__user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.layout-sidebar__user-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.layout-sidebar__user-role {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: capitalize;
+}
+
+.layout-sidebar__logout {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: var(--color-danger);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.layout-sidebar__logout:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.15);
+}
+
+/* ─── Main Content ─── */
+.dashboard-layout__main {
+  flex: 1;
+  padding: 2rem 2.5rem;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+}
+
+/* Custom Scrollbar for Main Content */
+.dashboard-layout__main::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dashboard-layout__main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-layout__main::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 100px;
+}
+
+.dashboard-layout__main::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ─── Responsiveness ─── */
+@media (max-width: 900px) {
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  .dashboard-layout__sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+    padding: 1rem 1.5rem;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .layout-sidebar__logo {
+    margin-bottom: 0;
+  }
+
+  .layout-sidebar__nav {
+    display: none; /* We can implement a mobile menu in Phase 6 if needed */
+  }
+
+  .layout-sidebar__footer {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .layout-sidebar__logout {
+    width: auto;
+    padding: 0.5rem 1rem;
+  }
+
+  .dashboard-layout__main {
+    height: auto;
+    padding: 1.5rem;
+  }
+}
