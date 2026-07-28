@@ -17,12 +17,11 @@ export const generateToken = (userId) => {
 export const sendTokenResponse = (user, statusCode, res) => {
   const token = generateToken(user._id);
 
-  // Cookie options
   const cookieOptions = {
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     httpOnly: true, // prevents XSS attacks
     secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-    sameSite: 'strict',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
   };
 
   // Remove password from user object before sending
