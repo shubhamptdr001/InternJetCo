@@ -281,26 +281,64 @@ Provide a comprehensive session debrief. Respond with ONLY a JSON object (no mar
 };
 
 /**
+ * Analyze a resume PDF buffer directly using Gemini's native PDF understanding.
+ * Much more accurate than text extraction since Gemini reads formatting, columns, and structure.
+ * @param {Buffer} pdfBuffer - The raw PDF file buffer
+ * @param {string} targetRole
+ */
+export const analyzeResumePDF = async (pdfBuffer, targetRole) => {
+  try {
+    const model = getModel();
+
+    const base64Pdf = pdfBuffer.toString('base64');
+
+    const prompt = buildResumeAnalysisPrompt(targetRole, true);
+
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            {
+              inlineData: {
+                mimeType: 'application/pdf',
+                data: base64Pdf,
+              },
+            },
+            { text: prompt },
+          ],
+        },
+      ],
+    });
+
+    const text = result.response.text();
+    return parseResumeAnalysisResponse(text, targetRole);
+  } catch (error) {
+    console.warn(`[WARNING] Gemini PDF analysis failed: ${error.message}. Falling back to text mode.`);
+    // If Gemini PDF fails, return the standard fallback
+    return getResumeFallback(targetRole);
+  }
+};
+
+/**
  * Analyze resume text against a target role using ambiguity-detection model.
  * @param {string} resumeText
  * @param {string} targetRole
  * @returns {Promise<{ atsScore: number, strengths: string[], missingSkills: string[], analysisReasoning: string, ambiguitiesAndSuggestions: Array }>}
  */
-export const analyzeResumeText = async (resumeText, targetRole) => {
-  try {
-    const model = getModel();
+// ─── Shared helpers for resume analysis ──────────────────────────────────────
 
-    const prompt = `You are an expert ATS (Applicant Tracking System) recruiter, technical career advisor, and professional resume editor.
+/**
+ * Build the resume analysis prompt string.
+ * @param {string} targetRole
+ * @param {boolean} isPDF - if true, omit the "Resume Text:" block (Gemini reads the PDF directly)
+ */
+const buildResumeAnalysisPrompt = (targetRole, isPDF = false) => `You are an expert ATS (Applicant Tracking System) recruiter, technical career advisor, and professional resume editor.
 
-Analyze the following candidate resume against the target role: "${targetRole}".
-
-Resume Text:
-"""
-${resumeText}
-"""
-
+Analyze the ${isPDF ? 'attached resume PDF' : `following candidate resume`} against the target role: "${targetRole}".
+${isPDF ? '' : ''}
 Your task is to:
-1. Parse the entire resume including work experience, education, skills, and summary.
+1. Parse the entire resume including work experience, education, skills, and summary sections.
 2. Search for vague language, lack of quantifiable achievements, missing dates, unclear job titles, buzzwords without supporting context, and soft ambiguities where the candidate's impact is not clearly defined.
 3. Evaluate how each identified issue might be perceived by a recruiter or an ATS.
 4. Formulate specific, actionable advice using the STAR method (Situation, Task, Action, Result) and recommend adding specific metrics where possible.
@@ -323,64 +361,83 @@ Respond with ONLY a single JSON object (no markdown, no extra text) in this exac
 
 Important rules:
 - Focus on "soft" ambiguities where the candidate's impact is not clearly defined.
-- Each ambiguity must reference actual text from the resume.
+- Each ambiguity must reference actual text found in the resume.
 - Tailor suggestions to the "${targetRole}" industry and typical expectations for that role.
 - Provide between 3 and 7 ambiguity items based on what you find.
 - If the resume quality is high, still find minor optimizations.
 - Ensure the response is valid JSON with no trailing commas.`;
 
+/**
+ * Parse the JSON response from Gemini into a normalized resume analysis object.
+ */
+const parseResumeAnalysisResponse = (text, targetRole) => {
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('Failed to parse resume analysis from AI response');
+  const report = JSON.parse(jsonMatch[0]);
+  return {
+    atsScore: Math.min(100, Math.max(0, Number(report.atsScore || 50))),
+    strengths: report.strengths || [],
+    missingSkills: report.missingSkills || [],
+    analysisReasoning: report.analysis_reasoning || '',
+    ambiguitiesAndSuggestions: report.ambiguities_and_suggestions || [],
+  };
+};
+
+/**
+ * Return a fallback resume analysis when Gemini API fails.
+ */
+const getResumeFallback = (targetRole) => ({
+  atsScore: 65,
+  strengths: [
+    'Clearly lists core programming languages',
+    'Chronological layout of professional experience',
+    'Includes contact details and education section',
+  ],
+  missingSkills: [
+    'Modern cloud technologies (AWS/Docker)',
+    'Testing frameworks (Jest/Cypress)',
+    'System design principles',
+  ],
+  analysisReasoning: `We performed a fallback analysis of your resume for the "${targetRole}" position. The resume has a good overall structure with clear sections for education and experience. However, a recurring pattern across the document is the lack of quantifiable achievements — most bullet points describe responsibilities rather than outcomes. Several key technical keywords relevant to the ${targetRole} role also appear to be missing, which would negatively impact ATS screening. Addressing these issues would significantly improve both your ATS score and your impression on human recruiters.`,
+  ambiguitiesAndSuggestions: [
+    {
+      original_text: 'Worked on various projects',
+      issue_type: 'Vague Responsibility',
+      reasoning: 'This phrase gives recruiters no information about your actual contributions, the scale of the projects, or the results achieved. It could apply to any candidate.',
+      suggestion: "Replace with a specific achievement. Example: 'Led development of 3 microservices using Node.js and PostgreSQL, reducing API response time by 40% for 10,000+ daily users.'",
+    },
+    {
+      original_text: 'Responsible for improving performance',
+      issue_type: 'Lack of Metrics',
+      reasoning: 'The statement lacks quantifiable data. Without a baseline, a target, and a result, this claim cannot be verified or compared against other candidates.',
+      suggestion: "Use the STAR method: 'Identified N+1 query bottleneck in MySQL database (Situation), refactored ORM queries (Action), resulting in a 60% reduction in page load time from 3.2s to 1.3s (Result).'",
+    },
+    {
+      original_text: 'Familiar with Agile methodologies',
+      issue_type: 'Buzzword Overuse',
+      reasoning: "'Familiar with' is a weak qualifier that suggests surface-level knowledge. ATS systems and recruiters prefer concrete, action-oriented language backed by real experience.",
+      suggestion: "Replace with demonstrated experience: 'Participated in 2-week Agile sprints using Jira, contributing to sprint planning, daily standups, and retrospectives across a team of 6 engineers.'",
+    },
+  ],
+});
+
+// ─── Public functions ─────────────────────────────────────────────────────────
+
+/**
+ * Analyze resume plain text against a target role.
+ * @param {string} resumeText
+ * @param {string} targetRole
+ */
+export const analyzeResumeText = async (resumeText, targetRole) => {
+  try {
+    const model = getModel();
+    const prompt = buildResumeAnalysisPrompt(targetRole, false) +
+      `\n\nResume Text:\n"""\n${resumeText}\n"""`;
     const result = await model.generateContent(prompt);
-    const text = result.response.text();
-
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error('Failed to parse resume analysis from AI response');
-    }
-
-    const report = JSON.parse(jsonMatch[0]);
-    return {
-      atsScore: Math.min(100, Math.max(0, Number(report.atsScore || 50))),
-      strengths: report.strengths || [],
-      missingSkills: report.missingSkills || [],
-      analysisReasoning: report.analysis_reasoning || '',
-      ambiguitiesAndSuggestions: report.ambiguities_and_suggestions || [],
-    };
+    return parseResumeAnalysisResponse(result.response.text(), targetRole);
   } catch (error) {
-    console.warn(`[WARNING] Gemini API failed: ${error.message}. Using fallback resume report.`);
-    return {
-      atsScore: 65,
-      strengths: [
-        "Clearly lists core programming languages",
-        "Chronological layout of professional experience",
-        "Includes contact details and education section"
-      ],
-      missingSkills: [
-        "Modern cloud technologies (AWS/Docker)",
-        "Testing frameworks (Jest/Cypress)",
-        "System design principles"
-      ],
-      analysisReasoning: `We performed a fallback analysis of your resume for the "${targetRole}" position. The resume has a good overall structure with clear sections for education and experience. However, a recurring pattern across the document is the lack of quantifiable achievements — most bullet points describe responsibilities rather than outcomes. Additionally, several key technical keywords relevant to the ${targetRole} role appear to be missing, which would negatively impact ATS screening. Addressing these issues would significantly improve both your ATS score and your impression on human recruiters.`,
-      ambiguitiesAndSuggestions: [
-        {
-          original_text: "Worked on various projects",
-          issue_type: "Vague Responsibility",
-          reasoning: "This phrase gives recruiters no information about your actual contributions, the scale of the projects, or the results achieved. It could apply to any candidate.",
-          suggestion: "Replace with a specific achievement. Example: 'Led development of 3 microservices using Node.js and PostgreSQL, reducing API response time by 40% for 10,000+ daily users.'"
-        },
-        {
-          original_text: "Responsible for improving performance",
-          issue_type: "Lack of Metrics",
-          reasoning: "The statement lacks quantifiable data. Without a baseline, a target, and a result, this claim cannot be verified or compared against other candidates.",
-          suggestion: "Use the STAR method: 'Identified N+1 query bottleneck in MySQL database (Situation), refactored ORM queries (Action), resulting in a 60% reduction in page load time from 3.2s to 1.3s (Result).'"
-        },
-        {
-          original_text: "Familiar with Agile methodologies",
-          issue_type: "Buzzword Overuse",
-          reasoning: "'Familiar with' is a weak qualifier that suggests surface-level knowledge. ATS systems and recruiters prefer concrete, action-oriented language backed by real experience.",
-          suggestion: "Replace with demonstrated experience: 'Participated in 2-week Agile sprints using Jira, contributing to sprint planning, daily standups, and retrospectives across a team of 6 engineers.'"
-        }
-      ]
-    };
+    console.warn(`[WARNING] Gemini text analysis failed: ${error.message}. Using fallback.`);
+    return getResumeFallback(targetRole);
   }
 };
 

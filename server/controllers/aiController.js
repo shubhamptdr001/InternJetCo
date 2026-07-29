@@ -1,8 +1,5 @@
 import AIReport from '../models/AIReport.js';
 import * as gemini from '../services/geminiService.js';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const pdfParse = require('pdf-parse');
 
 /**
  * @desc    Analyze resume text or uploaded file against a target role
@@ -12,45 +9,36 @@ const pdfParse = require('pdf-parse');
 export const analyzeResume = async (req, res, next) => {
   try {
     const { targetRole } = req.body;
-    let resumeText = req.body.resumeText || '';
+    const resumeText = req.body.resumeText || '';
 
     if (!targetRole) {
       return res.status(400).json({ success: false, message: 'Target role is required.' });
     }
 
-    // If file is uploaded, extract text
+    let analysis;
+
     if (req.file) {
       const { buffer, mimetype } = req.file;
 
       if (mimetype === 'application/pdf') {
-        try {
-          const parsedPdf = await pdfParse(buffer);
-          resumeText = parsedPdf.text;
-        } catch (pdfError) {
-          return res.status(400).json({
-            success: false,
-            message: 'Failed to extract text from PDF. Please copy and paste the text instead.',
-          });
-        }
+        // Send PDF buffer directly to Gemini — it reads PDFs natively and much more accurately
+        analysis = await gemini.analyzeResumePDF(buffer, targetRole);
       } else if (mimetype === 'text/plain') {
-        resumeText = buffer.toString('utf-8');
+        const text = buffer.toString('utf-8');
+        if (!text || text.trim().length < 50) {
+          return res.status(400).json({ success: false, message: 'The text file appears to be empty or too short.' });
+        }
+        analysis = await gemini.analyzeResumeText(text, targetRole);
       } else {
-        return res.status(400).json({
-          success: false,
-          message: 'Unsupported file format. Please upload a PDF or TXT file.',
-        });
+        return res.status(400).json({ success: false, message: 'Unsupported file format. Please upload a PDF or TXT file.' });
       }
+    } else {
+      // Pasted text
+      if (!resumeText || resumeText.trim().length < 50) {
+        return res.status(400).json({ success: false, message: 'Resume content is too short or empty. Please provide more content.' });
+      }
+      analysis = await gemini.analyzeResumeText(resumeText, targetRole);
     }
-
-    if (!resumeText || resumeText.trim().length < 50) {
-      return res.status(400).json({
-        success: false,
-        message: 'Resume content is too short or empty. Please provide more content.',
-      });
-    }
-
-    // Call Gemini to analyze resume
-    const analysis = await gemini.analyzeResumeText(resumeText, targetRole);
 
     // Save report to DB
     const report = await AIReport.create({
@@ -67,13 +55,11 @@ export const analyzeResume = async (req, res, next) => {
       },
     });
 
-    res.status(201).json({
-      success: true,
-      report,
-    });
+    res.status(201).json({ success: true, report });
   } catch (error) {
     next(error);
   }
+
 };
 
 /**
