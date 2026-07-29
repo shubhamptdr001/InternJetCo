@@ -55,8 +55,9 @@ const ResumeAnalysis = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.type !== 'application/pdf' && file.type !== 'text/plain') {
-      toast.error('Only PDF and plain text (.txt) files are allowed.'); return;
+    const ALLOWED = new Set(['application/pdf', 'text/plain', 'image/jpeg', 'image/png', 'image/webp']);
+    if (!ALLOWED.has(file.type)) {
+      toast.error('Only PDF, JPG, PNG, WebP, or TXT files are allowed.'); return;
     }
     if (file.size > 5 * 1024 * 1024) {
       toast.error('File size cannot exceed 5MB.'); return;
@@ -173,14 +174,14 @@ const ResumeAnalysis = () => {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Upload Resume (.pdf, .txt)</label>
+                    <label className="form-label">Upload Resume (.pdf, .jpg, .png, .webp, .txt)</label>
                     <div className="upload-box glass">
-                      <input type="file" id="resume-file" accept=".pdf,.txt" onChange={handleFileChange} className="file-input" />
+                      <input type="file" id="resume-file" accept=".pdf,.txt,.jpg,.jpeg,.png,.webp" onChange={handleFileChange} className="file-input" />
                       <label htmlFor="resume-file" className="upload-label">
                         <FiUpload size={32} className="upload-icon" />
                         {selectedFile
                           ? <span className="file-name">{selectedFile.name}</span>
-                          : <><span className="upload-title">Click to upload file</span><span className="upload-subtitle">PDF or Text (max. 5MB)</span></>
+                          : <><span className="upload-title">Click to upload file</span><span className="upload-subtitle">PDF, JPG, PNG, WebP or TXT (max. 5MB)</span></>
                         }
                       </label>
                     </div>

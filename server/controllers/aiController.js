@@ -16,6 +16,7 @@ export const analyzeResume = async (req, res, next) => {
     }
 
     let analysis;
+    const IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
     if (req.file) {
       const { buffer, mimetype } = req.file;
@@ -23,6 +24,9 @@ export const analyzeResume = async (req, res, next) => {
       if (mimetype === 'application/pdf') {
         // Send PDF buffer directly to Gemini — it reads PDFs natively and much more accurately
         analysis = await gemini.analyzeResumePDF(buffer, targetRole);
+      } else if (IMAGE_TYPES.has(mimetype)) {
+        // Send image directly to Gemini — it can read resume images (JPG, PNG, WebP)
+        analysis = await gemini.analyzeResumeImage(buffer, mimetype, targetRole);
       } else if (mimetype === 'text/plain') {
         const text = buffer.toString('utf-8');
         if (!text || text.trim().length < 50) {
@@ -30,7 +34,7 @@ export const analyzeResume = async (req, res, next) => {
         }
         analysis = await gemini.analyzeResumeText(text, targetRole);
       } else {
-        return res.status(400).json({ success: false, message: 'Unsupported file format. Please upload a PDF or TXT file.' });
+        return res.status(400).json({ success: false, message: 'Unsupported file format. Please upload a PDF, image (JPG/PNG/WebP), or TXT file.' });
       }
     } else {
       // Pasted text

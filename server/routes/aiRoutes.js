@@ -10,7 +10,14 @@ import {
 
 const router = express.Router();
 
-// Multer memory storage configuration for file uploads (resumes)
+const ALLOWED_MIME_TYPES = new Set([
+  'application/pdf',
+  'text/plain',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+]);
+
 const storage = multer.memoryStorage();
 const upload = multer({
   storage,
@@ -18,10 +25,10 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'application/pdf' || file.mimetype === 'text/plain') {
+    if (ALLOWED_MIME_TYPES.has(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Only PDF and plain text (.txt) files are allowed.'), false);
+      cb(new Error('Only PDF, TXT, JPG, PNG, and WebP files are allowed.'), false);
     }
   },
 });

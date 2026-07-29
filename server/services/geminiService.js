@@ -289,9 +289,7 @@ Provide a comprehensive session debrief. Respond with ONLY a JSON object (no mar
 export const analyzeResumePDF = async (pdfBuffer, targetRole) => {
   try {
     const model = getModel();
-
     const base64Pdf = pdfBuffer.toString('base64');
-
     const prompt = buildResumeAnalysisPrompt(targetRole, true);
 
     const result = await model.generateContent({
@@ -299,23 +297,48 @@ export const analyzeResumePDF = async (pdfBuffer, targetRole) => {
         {
           role: 'user',
           parts: [
-            {
-              inlineData: {
-                mimeType: 'application/pdf',
-                data: base64Pdf,
-              },
-            },
+            { inlineData: { mimeType: 'application/pdf', data: base64Pdf } },
             { text: prompt },
           ],
         },
       ],
     });
 
-    const text = result.response.text();
-    return parseResumeAnalysisResponse(text, targetRole);
+    return parseResumeAnalysisResponse(result.response.text(), targetRole);
   } catch (error) {
-    console.warn(`[WARNING] Gemini PDF analysis failed: ${error.message}. Falling back to text mode.`);
-    // If Gemini PDF fails, return the standard fallback
+    console.warn(`[WARNING] Gemini PDF analysis failed: ${error.message}. Using fallback.`);
+    return getResumeFallback(targetRole);
+  }
+};
+
+/**
+ * Analyze a resume image (JPG, PNG, WebP) using Gemini's native vision.
+ * Gemini performs OCR + layout understanding directly on the image.
+ * @param {Buffer} imageBuffer - The raw image file buffer
+ * @param {string} mimeType   - 'image/jpeg' | 'image/png' | 'image/webp'
+ * @param {string} targetRole
+ */
+export const analyzeResumeImage = async (imageBuffer, mimeType, targetRole) => {
+  try {
+    const model = getModel();
+    const base64Image = imageBuffer.toString('base64');
+    const prompt = buildResumeAnalysisPrompt(targetRole, true);
+
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            { inlineData: { mimeType, data: base64Image } },
+            { text: prompt },
+          ],
+        },
+      ],
+    });
+
+    return parseResumeAnalysisResponse(result.response.text(), targetRole);
+  } catch (error) {
+    console.warn(`[WARNING] Gemini image analysis failed: ${error.message}. Using fallback.`);
     return getResumeFallback(targetRole);
   }
 };
