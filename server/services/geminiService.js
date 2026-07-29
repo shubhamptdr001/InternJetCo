@@ -281,33 +281,53 @@ Provide a comprehensive session debrief. Respond with ONLY a JSON object (no mar
 };
 
 /**
- * Analyze resume text against a target role.
+ * Analyze resume text against a target role using ambiguity-detection model.
  * @param {string} resumeText
  * @param {string} targetRole
- * @returns {Promise<{ atsScore: number, strengths: string[], improvements: string[], missingSkills: string[], detailedFeedback: string }>}
+ * @returns {Promise<{ atsScore: number, strengths: string[], missingSkills: string[], analysisReasoning: string, ambiguitiesAndSuggestions: Array }>}
  */
 export const analyzeResumeText = async (resumeText, targetRole) => {
   try {
     const model = getModel();
 
-    const prompt = `You are an expert ATS (Applicant Tracking System) recruiter and technical career advisor.
-Analyze the following candidate resume text against the target role: "${targetRole}".
+    const prompt = `You are an expert ATS (Applicant Tracking System) recruiter, technical career advisor, and professional resume editor.
+
+Analyze the following candidate resume against the target role: "${targetRole}".
 
 Resume Text:
 """
 ${resumeText}
 """
 
-Evaluate the resume and respond with ONLY a JSON object (no markdown, no extra text) in this exact format:
+Your task is to:
+1. Parse the entire resume including work experience, education, skills, and summary.
+2. Search for vague language, lack of quantifiable achievements, missing dates, unclear job titles, buzzwords without supporting context, and soft ambiguities where the candidate's impact is not clearly defined.
+3. Evaluate how each identified issue might be perceived by a recruiter or an ATS.
+4. Formulate specific, actionable advice using the STAR method (Situation, Task, Action, Result) and recommend adding specific metrics where possible.
+
+Respond with ONLY a single JSON object (no markdown, no extra text) in this exact format:
 {
   "atsScore": <number from 0 to 100 representing the match percentage for the target role>,
-  "strengths": ["<strength 1>", "<strength 2>", "<strength 3>"],
-  "improvements": ["<improvement 1>", "<improvement 2>", "<improvement 3>"],
-  "missingSkills": ["<essential technical skill or tool missing from the resume but relevant to targetRole 1>", "<missing skill 2>"],
-  "detailedFeedback": "<4-5 sentences comprehensive review, including layout, impact of descriptions, and overall advice>"
+  "strengths": ["<clear strength 1>", "<clear strength 2>", "<clear strength 3>"],
+  "missingSkills": ["<essential technical skill or tool missing from the resume but relevant to the target role>"],
+  "analysis_reasoning": "<A detailed paragraph explaining the overall logic used to evaluate the resume, noting general patterns of ambiguity found across the document.>",
+  "ambiguities_and_suggestions": [
+    {
+      "original_text": "<The specific phrase or section from the resume that is unclear>",
+      "issue_type": "<The category of the problem, e.g.: Lack of Metrics, Vague Responsibility, Missing Timeline, Buzzword Overuse, Unclear Job Title, Missing Context>",
+      "reasoning": "<Explanation of why this specific part is considered ambiguous and how it might negatively impact perception by a recruiter or ATS>",
+      "suggestion": "<A clear, actionable, rewritten version or specific instruction on how to improve this section. Use the STAR method or add specific metrics where applicable.>"
+    }
+  ]
 }
 
-Ensure the response is valid JSON.`;
+Important rules:
+- Focus on "soft" ambiguities where the candidate's impact is not clearly defined.
+- Each ambiguity must reference actual text from the resume.
+- Tailor suggestions to the "${targetRole}" industry and typical expectations for that role.
+- Provide between 3 and 7 ambiguity items based on what you find.
+- If the resume quality is high, still find minor optimizations.
+- Ensure the response is valid JSON with no trailing commas.`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
@@ -321,9 +341,9 @@ Ensure the response is valid JSON.`;
     return {
       atsScore: Math.min(100, Math.max(0, Number(report.atsScore || 50))),
       strengths: report.strengths || [],
-      improvements: report.improvements || [],
       missingSkills: report.missingSkills || [],
-      detailedFeedback: report.detailedFeedback || 'Resume analyzed successfully.',
+      analysisReasoning: report.analysis_reasoning || '',
+      ambiguitiesAndSuggestions: report.ambiguities_and_suggestions || [],
     };
   } catch (error) {
     console.warn(`[WARNING] Gemini API failed: ${error.message}. Using fallback resume report.`);
@@ -334,17 +354,32 @@ Ensure the response is valid JSON.`;
         "Chronological layout of professional experience",
         "Includes contact details and education section"
       ],
-      improvements: [
-        "Quantify achievements with metrics (e.g. 'improved performance by 20%')",
-        "Add a dedicated skills section at the top for better ATS indexing",
-        "Include links to live project demos or GitHub portfolios"
-      ],
       missingSkills: [
         "Modern cloud technologies (AWS/Docker)",
         "Testing frameworks (Jest/Cypress)",
         "System design principles"
       ],
-      detailedFeedback: `We performed a fallback analysis of your resume for the "${targetRole}" position. The resume has a good structure, but lacks action-oriented verbs and quantifiable achievements. To stand out, ensure each bullet point starts with a strong action verb and lists the business impact. Additionally, make sure the missing technical skills are integrated naturally.`
+      analysisReasoning: `We performed a fallback analysis of your resume for the "${targetRole}" position. The resume has a good overall structure with clear sections for education and experience. However, a recurring pattern across the document is the lack of quantifiable achievements — most bullet points describe responsibilities rather than outcomes. Additionally, several key technical keywords relevant to the ${targetRole} role appear to be missing, which would negatively impact ATS screening. Addressing these issues would significantly improve both your ATS score and your impression on human recruiters.`,
+      ambiguitiesAndSuggestions: [
+        {
+          original_text: "Worked on various projects",
+          issue_type: "Vague Responsibility",
+          reasoning: "This phrase gives recruiters no information about your actual contributions, the scale of the projects, or the results achieved. It could apply to any candidate.",
+          suggestion: "Replace with a specific achievement. Example: 'Led development of 3 microservices using Node.js and PostgreSQL, reducing API response time by 40% for 10,000+ daily users.'"
+        },
+        {
+          original_text: "Responsible for improving performance",
+          issue_type: "Lack of Metrics",
+          reasoning: "The statement lacks quantifiable data. Without a baseline, a target, and a result, this claim cannot be verified or compared against other candidates.",
+          suggestion: "Use the STAR method: 'Identified N+1 query bottleneck in MySQL database (Situation), refactored ORM queries (Action), resulting in a 60% reduction in page load time from 3.2s to 1.3s (Result).'"
+        },
+        {
+          original_text: "Familiar with Agile methodologies",
+          issue_type: "Buzzword Overuse",
+          reasoning: "'Familiar with' is a weak qualifier that suggests surface-level knowledge. ATS systems and recruiters prefer concrete, action-oriented language backed by real experience.",
+          suggestion: "Replace with demonstrated experience: 'Participated in 2-week Agile sprints using Jira, contributing to sprint planning, daily standups, and retrospectives across a team of 6 engineers.'"
+        }
+      ]
     };
   }
 };

@@ -58,11 +58,12 @@ export const analyzeResume = async (req, res, next) => {
       type: 'resume',
       targetRole,
       score: analysis.atsScore,
-      feedback: analysis.detailedFeedback,
+      feedback: analysis.analysisReasoning,
       details: {
         strengths: analysis.strengths,
-        improvements: analysis.improvements,
         missingSkills: analysis.missingSkills,
+        analysisReasoning: analysis.analysisReasoning,
+        ambiguitiesAndSuggestions: analysis.ambiguitiesAndSuggestions,
       },
     });
 

@@ -27,10 +27,20 @@ const AIReportSchema = new mongoose.Schema(
       required: true,
     },
     details: {
-      // For resume type
+      // For resume type — legacy
       missingSkills: [String],
       strengths: [String],
       improvements: [String],
+      // For resume type — ambiguity detection (new)
+      analysisReasoning: String,
+      ambiguitiesAndSuggestions: [
+        {
+          original_text: String,
+          issue_type: String,
+          reasoning: String,
+          suggestion: String,
+        }
+      ],
 
       // For coding type
       timeComplexity: String,
