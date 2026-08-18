@@ -1,4 +1,4 @@
-# 🚀 InternJetCo — Next-Gen AI & Peer Mock Interview Platform
+# 🚀 InternJetCo — Peer Mock Interview Platform
 
 InternJetCo is a premium, feature-rich web application designed to prepare developers for technical, behavioral, and system design interviews. It combines real-time AI feedback with collaborative peer-to-peer interview simulation, offering a state-of-the-art prep ecosystem.
 
