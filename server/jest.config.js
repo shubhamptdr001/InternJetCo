@@ -1,11 +1,9 @@
 /** @type {import('jest').Config} */
 const config = {
   testEnvironment: 'node',
-  extensionsToTreatAsEsm: ['.js'],
   transform: {},
   testMatch: ['**/tests/**/*.test.js'],
-  globalSetup: './tests/globalSetup.js',
-  globalTeardown: './tests/globalTeardown.js',
+  setupFilesAfterEnv: ['./tests/setup.js'],
   collectCoverageFrom: [
     'controllers/**/*.js',
     'routes/**/*.js',
@@ -14,7 +12,6 @@ const config = {
     '!**/node_modules/**',
   ],
   verbose: true,
-  // Allow extra time for Gemini API calls in tests
   testTimeout: 30000,
 };
 

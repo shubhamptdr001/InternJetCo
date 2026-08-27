@@ -51,7 +51,7 @@ describe('Interview API', () => {
       const res = await request(app)
         .post('/api/interviews/start')
         .set('Cookie', authCookie)
-        .send({ role: 'Software Engineer', difficulty: 'medium' });
+        .send({ jobRole: 'Software Engineer', difficulty: 'medium' });
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
