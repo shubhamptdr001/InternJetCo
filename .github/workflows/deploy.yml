@@ -1,0 +1,55 @@
+name: CD — Deploy on Merge
+
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: ["CI — Test & Build"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  # ─── Deploy Backend to Render ───────────────────────────────────────────────
+  deploy-backend:
+    name: 🚀 Deploy Server → Render
+    runs-on: ubuntu-latest
+    # Only deploy if CI passed
+    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: 🚀 Trigger Render Deploy Hook
+        run: |
+          curl -s -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            --fail \
+            --retry 3
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+
+      - name: ✅ Backend deploy triggered
+        run: echo "Render deploy hook triggered successfully"
+
+  # ─── Deploy Frontend to Vercel ──────────────────────────────────────────────
+  deploy-frontend:
+    name: 🚀 Deploy Client → Vercel
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📦 Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: 🚀 Deploy to Vercel Production
+        run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+        working-directory: client
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

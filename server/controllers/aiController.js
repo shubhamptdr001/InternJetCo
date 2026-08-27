@@ -1,5 +1,6 @@
 import AIReport from '../models/AIReport.js';
 import * as gemini from '../services/geminiService.js';
+import { uploadResume } from '../services/cloudinaryService.js';
 
 /**
  * @desc    Analyze resume text or uploaded file against a target role
@@ -44,6 +45,22 @@ export const analyzeResume = async (req, res, next) => {
       analysis = await gemini.analyzeResumeText(resumeText, targetRole);
     }
 
+    // Upload the original file to Cloudinary for storage (if a file was uploaded)
+    let resumeUrl = null;
+    if (req.file) {
+      try {
+        const cloudResult = await uploadResume(
+          req.file.buffer,
+          req.user._id.toString(),
+          req.file.mimetype
+        );
+        resumeUrl = cloudResult.secure_url;
+      } catch (uploadError) {
+        console.warn('[WARNING] Cloudinary resume upload failed:', uploadError.message);
+        // Non-fatal — analysis still completes
+      }
+    }
+
     // Save report to DB
     const report = await AIReport.create({
       user: req.user._id,
@@ -51,6 +68,7 @@ export const analyzeResume = async (req, res, next) => {
       targetRole,
       score: analysis.atsScore,
       feedback: analysis.analysisReasoning,
+      resumeUrl,
       details: {
         strengths: analysis.strengths,
         missingSkills: analysis.missingSkills,

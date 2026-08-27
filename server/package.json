@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --forceExit --detectOpenHandles",
+    "test:coverage": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage --forceExit --detectOpenHandles"
   },
   "keywords": [
     "interview",
@@ -18,6 +20,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -29,5 +32,11 @@
     "multer": "^2.2.0",
     "pdf-parse": "^2.4.5",
     "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "@jest/globals": "^30.4.1",
+    "cross-env": "^10.1.0",
+    "jest": "^30.4.2",
+    "supertest": "^7.2.2"
   }
 }

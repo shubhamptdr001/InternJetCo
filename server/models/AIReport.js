@@ -26,6 +26,11 @@ const AIReportSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    // Cloudinary URL of the uploaded resume (PDF/image), if file was uploaded
+    resumeUrl: {
+      type: String,
+      default: null,
+    },
     details: {
       // For resume type — legacy
       missingSkills: [String],
