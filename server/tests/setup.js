@@ -5,6 +5,11 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 
 dotenv.config();
 
+// Provide fallback environment variables for tests so they don't crash in CI 
+// if GitHub Secrets are missing or empty.
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'fallback_test_jwt_secret_key_12345';
+process.env.GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'fallback_gemini_api_key';
+
 let mongoServer;
 
 beforeAll(async () => {
