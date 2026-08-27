@@ -1,28 +1,31 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { beforeAll, afterAll, afterEach } from '@jest/globals';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
 dotenv.config();
 
+let mongoServer;
+
 beforeAll(async () => {
-  // Use a separate test database
-  const testUri = process.env.MONGODB_URI_TEST || process.env.MONGODB_URI.replace(
-    /\/internjetco(\?|$)/,
-    '/internjetco_test$1'
-  );
+  // Use MongoMemoryServer for tests to decouple from Atlas/external DBs
+  mongoServer = await MongoMemoryServer.create();
+  const mongoUri = mongoServer.getUri();
   
-  await mongoose.connect(testUri);
+  await mongoose.connect(mongoUri);
 });
 
 afterEach(async () => {
-  // Clear all collections after each test suite (or each test if preferred, but tests might rely on state)
-  // Actually, let's keep data between tests in the same file, but clear after all tests in the file
+  // We'll keep data between tests in the same suite for now, as existing tests 
+  // might depend on state like the logged-in user or interview sessions.
 });
 
 afterAll(async () => {
-  // Drop DB and close connection after tests in the current worker finish
   if (mongoose.connection.readyState !== 0) {
     await mongoose.connection.dropDatabase();
     await mongoose.connection.close();
+  }
+  if (mongoServer) {
+    await mongoServer.stop();
   }
 });
