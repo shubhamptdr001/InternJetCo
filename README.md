@@ -35,9 +35,15 @@ The platform features a modern, customized dark theme crafted with standard-comp
 *   **Collaborative Notepad**: A synchronized scratchpad utilizing WebSockets for real-time document sharing.
 *   **Synced Interview Timer**: An interviewer-controlled synced timer to keep track of session length.
 
-### 📄 4. AI Resume Analyzer
-*   **Drag & Drop Upload**: Upload PDF resumes directly.
-*   **Gemini parser**: Analyzes text parsing, identifies skill matches, formatting advice, and recommends improvements for specific roles.
+### 📄 4. AI Resume Analyzer & Profile Management
+*   **Drag & Drop Upload**: Upload PDF/Image resumes directly for analysis and storage on **Cloudinary**.
+*   **Gemini Parser**: Analyzes text parsing, identifies skill matches, formatting advice, and recommends improvements for specific roles.
+*   **Cloudinary Avatars**: Automatically uploads, resizes (WebP optimized), and face-crops user avatars to display in profiles and chat.
+
+### ⚙️ 5. Robust DevOps & Infrastructure (NEW!)
+*   **Automated Testing**: Comprehensive Integration testing suite utilizing **Jest** and **Supertest** (20+ passing tests).
+*   **Docker Containerization**: Fully dockerized application using `docker-compose`. Multi-stage Alpine images for optimized performance.
+*   **CI/CD Pipeline**: GitHub Actions workflows run the test suite on every push and automatically deploy the frontend to **Vercel** and the backend to **Render** when merged to the `main` branch.
 
 ---
 
@@ -51,11 +57,14 @@ The platform features a modern, customized dark theme crafted with standard-comp
 *   **Icons**: React Icons (lucide-react / feather icons)
 *   **Editor**: `@monaco-editor/react`
 
-### Backend
+### Backend & Infrastructure
 *   **Runtime**: Node.js & Express
 *   **Database**: MongoDB (via Mongoose ODM)
 *   **Real-time Protocol**: Socket.io (WebSockets)
 *   **AI Engine**: Gemini Pro API (`@google/generative-ai`)
+*   **Media Storage**: Cloudinary SDK
+*   **Testing**: Jest, Supertest
+*   **DevOps**: Docker, GitHub Actions (CI/CD)
 
 ---
 
@@ -63,6 +72,7 @@ The platform features a modern, customized dark theme crafted with standard-comp
 
 ```text
 InternJetCo/
+├── .github/                # GitHub Actions Workflows (CI/CD)
 ├── client/                 # React frontend
 │   ├── src/
 │   │   ├── assets/         # Images & static assets
@@ -71,6 +81,7 @@ InternJetCo/
 │   │   ├── pages/          # Core pages (Dashboard, AICoding, InterviewRoom, etc.)
 │   │   ├── redux/          # Redux Toolkit global store & slices
 │   │   └── services/       # API services (Axios configuration)
+│   ├── Dockerfile
 │   ├── package.json
 │   └── vite.config.js
 │
@@ -80,11 +91,14 @@ InternJetCo/
 │   ├── middleware/         # Auth verify & Error handlers
 │   ├── models/             # Mongoose schemas (User, Interview, Feedback, etc.)
 │   ├── routes/             # REST endpoints route declarations
-│   ├── services/           # Gemini API integrations
+│   ├── services/           # Gemini API & Cloudinary integrations
 │   ├── sockets/            # Socket.io event triggers (notepad sync, timers, chat)
+│   ├── tests/              # Jest integration testing suites
+│   ├── Dockerfile
 │   ├── package.json
 │   └── server.js
 │
+├── docker-compose.yml      # Orchestrates client and server containers
 └── screenshots/            # UI screenshots & media files
 ```
 
@@ -97,10 +111,23 @@ InternJetCo/
 *   [MongoDB](https://www.mongodb.com/) (Local Community Server or Atlas URI)
 *   Gemini Pro API Key (from Google AI Studio)
 *   ZegoCloud App ID and Server Secret (from ZegoCloud Console)
+*   Cloudinary Cloud Name, API Key, and API Secret (from Cloudinary Dashboard)
+*   Docker (Optional, for containerized running)
 
 ---
 
-### Setup Instructions
+### Option A: Run via Docker (Recommended)
+
+1. Create a `.env` file in the root `InternJetCo/` directory containing all your secrets (MongoDB, Gemini, Cloudinary, JWT, ZegoCloud).
+2. Run the following command:
+```bash
+docker compose up --build
+```
+3. The backend will be available at `http://localhost:5000` and the frontend at `http://localhost`.
+
+---
+
+### Option B: Local Setup Instructions
 
 #### 1. Setup the Server
 Navigate to the server directory:
@@ -128,11 +155,21 @@ ZEGOCLOUD_SERVER_SECRET=your_Zegocloud_server_secret_key
 
 # Gemini AI Key
 GEMINI_API_KEY=your_gemini_api_key
+
+# Cloudinary Storage
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 ```
 
 Run the backend server in development mode:
 ```bash
 npm run dev
+```
+
+Run the automated integration tests:
+```bash
+npm test
 ```
 
 ---
@@ -183,6 +220,3 @@ Here are the visual walkthroughs of the key pages in InternJetCo:
 *Select peer partners, schedule interview sessions, and configure profile parameters.*
 ![Schedule Interview](screenshots/schedule.png)
 ![User Profile](screenshots/profile.png)
-
----
-
