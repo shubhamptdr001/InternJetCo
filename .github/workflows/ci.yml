@@ -12,11 +12,22 @@ jobs:
     name: 🧪 Jest + Supertest
     runs-on: ubuntu-latest
 
+    services:
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd mongosh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     env:
       NODE_ENV: test
-      MONGODB_URI: ${{ secrets.MONGODB_URI }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      MONGODB_URI: mongodb://localhost:27017/internjetco_test
+      JWT_SECRET: ${{ secrets.JWT_SECRET || 'test_jwt_secret_ci_fallback_key_12345' }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY || 'test_gemini_api_key_ci_fallback' }}
       CLIENT_URL: http://localhost:5173
 
     steps:

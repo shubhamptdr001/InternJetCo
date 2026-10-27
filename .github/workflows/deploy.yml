@@ -1,23 +1,32 @@
 name: CD — Deploy on Merge
 
 on:
-  push:
-    branches: [main]
   workflow_run:
     workflows: ["CI — Test & Build"]
     types: [completed]
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   # ─── Deploy Backend to Render ───────────────────────────────────────────────
   deploy-backend:
     name: 🚀 Deploy Server → Render
     runs-on: ubuntu-latest
-    # Only deploy if CI passed
-    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run && github.event.workflow_run.conclusion == 'success') }}
 
     steps:
+      - name: 🔍 Check Render Secrets
+        id: check_render
+        run: |
+          if [ -z "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" ]; then
+            echo "::warning title=Missing Secret::RENDER_DEPLOY_HOOK_URL secret is not configured in GitHub Secrets. Skipping Render deployment."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: 🚀 Trigger Render Deploy Hook
+        if: steps.check_render.outputs.skip != 'true'
         run: |
           curl -s -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" \
             -H "Content-Type: application/json" \
@@ -26,14 +35,19 @@ jobs:
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
 
-      - name: ✅ Backend deploy triggered
-        run: echo "Render deploy hook triggered successfully"
+      - name: ✅ Backend deploy status
+        run: |
+          if [ "${{ steps.check_render.outputs.skip }}" = "true" ]; then
+            echo "Render deployment was skipped because RENDER_DEPLOY_HOOK_URL is not set."
+          else
+            echo "Render deploy hook triggered successfully!"
+          fi
 
   # ─── Deploy Frontend to Vercel ──────────────────────────────────────────────
   deploy-frontend:
     name: 🚀 Deploy Client → Vercel
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run && github.event.workflow_run.conclusion == 'success') }}
 
     steps:
       - name: ⬇️ Checkout code
@@ -44,10 +58,22 @@ jobs:
         with:
           node-version: '22'
 
+      - name: 🔍 Check Vercel Secrets
+        id: check_vercel
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "::warning title=Missing Secret::VERCEL_TOKEN secret is not configured in GitHub Secrets. Skipping Vercel deployment."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: 📦 Install Vercel CLI
+        if: steps.check_vercel.outputs.skip != 'true'
         run: npm install -g vercel
 
       - name: 🚀 Deploy to Vercel Production
+        if: steps.check_vercel.outputs.skip != 'true'
         run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
         working-directory: client
         env:

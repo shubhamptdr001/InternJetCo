@@ -13,12 +13,17 @@ process.env.GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'fallback_gemini_api_
 let mongoServer;
 
 beforeAll(async () => {
-  // Use MongoMemoryServer for tests to decouple from Atlas/external DBs
+  // If MONGODB_URI is provided (e.g. from Docker/service container in CI, or local test DB), connect directly
+  if (process.env.MONGODB_URI) {
+    await mongoose.connect(process.env.MONGODB_URI);
+    return;
+  }
+
+  // Use MongoMemoryServer for tests when no external URI is provided
   mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();
-  
   await mongoose.connect(mongoUri);
-});
+}, 60000);
 
 afterEach(async () => {
   // We'll keep data between tests in the same suite for now, as existing tests 
